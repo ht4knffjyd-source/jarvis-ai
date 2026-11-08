@@ -1,0 +1,234 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#030914">
+<title>JARVIS AI</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#030914;color:#e9f7ff;
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+ min-height:100vh;overflow-x:hidden;
+ background-image:radial-gradient(ellipse at 50% 42%,#06264a 0%,#030914 65%);
+}
+header{padding:22px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #12436a}
+.logo{font-size:25px;font-weight:800;letter-spacing:7px;color:#60caff;text-shadow:0 0 18px #008cff}
+.small{font-size:10px;letter-spacing:3px;color:#78a9c9;margin-top:5px}
+.status{font-size:12px;color:#4cffb0}
+main{max-width:520px;margin:auto;padding:18px}
+.greeting{text-align:center;margin:23px 0 5px;color:#9dc8e7;font-size:14px}
+h2{text-align:center;font-size:22px;margin:8px 0 0}
+.core-area{height:320px;display:grid;place-items:center;position:relative}
+.core{
+ width:210px;height:210px;border-radius:50%;
+ display:grid;place-items:center;position:relative;
+ border:2px solid #168fff;
+ box-shadow:0 0 25px #008cff, inset 0 0 30px #0066aa;
+ animation:pulse 3s infinite;
+}
+.core:before,.core:after{
+ content:"";position:absolute;border-radius:50%;border:2px solid #35bfff;
+}
+.core:before{inset:-18px;border-left-color:transparent;border-right-color:#51d5ff;animation:spin 8s linear infinite}
+.core:after{inset:-35px;border-top-color:transparent;border-bottom-color:#168fff;animation:spin 12s linear infinite reverse}
+.core-text{text-align:center;color:#70d8ff;font-size:23px;font-weight:800;letter-spacing:4px;text-shadow:0 0 20px #00aaff}
+.core-text small{display:block;font-size:9px;letter-spacing:3px;margin-top:10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{50%{box-shadow:0 0 55px #008cff,inset 0 0 40px #007acc}}
+.wave{display:flex;justify-content:center;align-items:center;gap:4px;height:48px;margin:0 0 18px}
+.wave span{width:3px;height:8px;background:#35caff;border-radius:5px;box-shadow:0 0 8px #00aaff}
+.wave.active span{animation:wave .6s ease-in-out infinite alternate}
+.wave span:nth-child(3n){animation-delay:.2s}
+.wave span:nth-child(2n){animation-delay:.4s}
+@keyframes wave{to{height:35px}}
+.panel{background:#07172a;border:1px solid #15517b;border-radius:17px;padding:15px;margin:12px 0;box-shadow:0 0 15px #001c38}
+#messages{height:190px;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
+.msg{padding:10px 13px;border-radius:13px;max-width:90%;font-size:14px;line-height:1.5;white-space:pre-wrap}
+.bot{background:#102d49;border:1px solid #1a6795;align-self:flex-start}
+.user{background:#07518a;align-self:flex-end}
+.controls{display:flex;gap:9px;margin-top:12px}
+input{min-width:0;flex:1;background:#071b30;border:1px solid #17618d;color:white;padding:14px;border-radius:12px;font-size:15px;outline:none}
+button{border:1px solid #168fff;background:#092847;color:#8bdcff;border-radius:12px;padding:12px;font-size:14px;cursor:pointer}
+button:active{background:#12568b}
+.mic{
+ width:100px;height:100px;border-radius:50%;font-size:35px;
+ display:block;margin:18px auto 7px;
+ background:radial-gradient(circle,#1264a5,#03152a);
+ border:2px solid #48caff;box-shadow:0 0 30px #008cff;
+}
+.hint{text-align:center;color:#7299b8;font-size:12px}
+.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.actions button{padding:14px 4px;font-size:12px}
+footer{text-align:center;color:#426681;font-size:10px;padding:24px}
+</style>
+</head>
+<body>
+<header>
+ <div>
+  <div class="logo">J.A.R.V.I.S.</div>
+  <div class="small">PERSONAL AI SYSTEM</div>
+ </div>
+ <div class="status">● SYSTEM ONLINE</div>
+</header>
+
+<main>
+ <div class="greeting">WELCOME BACK</div>
+ <h2>How can I help you?</h2>
+
+ <div class="core-area">
+  <div class="core">
+   <div class="core-text">JARVIS<small>AI CORE • ACTIVE</small></div>
+  </div>
+ </div>
+
+ <div class="wave" id="wave">
+  <script>
+  for(let i=0;i<37;i++)document.write("<span></span>");
+  </script>
+ </div>
+
+ <div class="hint" id="state">YOUR ASSISTANT IS READY</div>
+ <button class="mic" id="mic" onclick="listen()">🎙️</button>
+ <div class="hint">TAP TO SPEAK</div>
+
+ <div class="panel">
+  <div style="font-size:12px;color:#60caff;margin-bottom:12px">CONVERSATION</div>
+  <div id="messages">
+   <div class="msg bot">Hello! I am JARVIS, your personal assistant. How may I help you today?</div>
+  </div>
+  <div class="controls">
+   <input id="input" placeholder="Ask JARVIS anything..." />
+   <button onclick="send()">SEND</button>
+  </div>
+ </div>
+
+ <div class="panel">
+  <div style="font-size:12px;color:#60caff;margin-bottom:12px">QUICK ACTIONS</div>
+  <div class="actions">
+   <button onclick="command('What time is it?')">🕒 Time</button>
+   <button onclick="command('What is today’s date?')">📅 Date</button>
+   <button onclick="openSite('https://www.google.com')">🔎 Google</button>
+   <button onclick="openSite('https://www.youtube.com')">▶ YouTube</button>
+   <button onclick="openSite('https://www.instagram.com')">📸 Instagram</button>
+   <button onclick="command('Tell me a joke')">😂 Joke</button>
+  </div>
+ </div>
+
+ <div class="panel" style="display:flex;justify-content:space-between;align-items:center">
+  <div><div style="color:#60caff;font-size:12px">SYSTEM STATUS</div><div style="font-size:12px;color:#80a9c6;margin-top:6px">Voice • Local storage • Commands</div></div>
+  <button onclick="clearChat()">CLEAR CHAT</button>
+ </div>
+</main>
+<footer>JARVIS AI • PERSONAL ASSISTANT • VERSION 1.0</footer>
+
+<script>
+const messages=document.getElementById('messages');
+const input=document.getElementById('input');
+const state=document.getElementById('state');
+const wave=document.getElementById('wave');
+
+function add(text,type){
+ const el=document.createElement('div');
+ el.className='msg '+type;
+ el.textContent=text;
+ messages.appendChild(el);
+ messages.scrollTop=messages.scrollHeight;
+ save();
+}
+function save(){
+ localStorage.setItem('jarvisHistory',messages.innerHTML);
+}
+function speak(text){
+ if(!('speechSynthesis' in window))return;
+ speechSynthesis.cancel();
+ const u=new SpeechSynthesisUtterance(text);
+ u.rate=0.95;
+ u.pitch=0.9;
+ speechSynthesis.speak(u);
+}
+function reply(text){
+ add(text,'bot');
+ speak(text);
+}
+function openSite(url){
+ window.open(url,'_blank');
+}
+function command(q){
+ add(q,'user');
+ let s=q.toLowerCase();
+ let answer='';
+ if(s.includes('time')){
+  answer='The current time is '+new Date().toLocaleTimeString();
+ }else if(s.includes('date')||s.includes('day')){
+  answer='Today is '+new Date().toLocaleDateString(undefined,{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+ }else if(s.includes('hello')||s.includes('hi')){
+  answer='Hello! JARVIS is online and ready to assist you.';
+ }else if(s.includes('your name')){
+  answer='I am JARVIS, your personal AI assistant.';
+ }else if(s.includes('joke')){
+  answer='Why did the computer go to the doctor? Because it had a virus!';
+ }else if(s.includes('help')){
+  answer='You can ask me for the time, date, a joke, or ask me to open Google, YouTube or Instagram.';
+ }else if(s.includes('google')){
+  answer='Opening Google.';
+  reply(answer);openSite('https://www.google.com');return;
+ }else if(s.includes('youtube')){
+  answer='Opening YouTube.';
+  reply(answer);openSite('https://www.youtube.com');return;
+ }else if(s.includes('instagram')){
+  answer='Opening Instagram.';
+  reply(answer);openSite('https://www.instagram.com');return;
+ }else{
+  answer='I received your request. My advanced AI brain has not been connected yet. I can currently answer basic commands. We will add full AI intelligence in the next stage.';
+ }
+ reply(answer);
+}
+function send(){
+ const q=input.value.trim();
+ if(!q)return;
+ input.value='';
+ command(q);
+}
+input.addEventListener('keydown',e=>{if(e.key==='Enter')send()});
+
+let recognition;
+function listen(){
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){
+  state.textContent='VOICE INPUT NOT SUPPORTED HERE. USE TEXT CHAT.';
+  return;
+ }
+ recognition=new SR();
+ recognition.lang='en-US';
+ recognition.interimResults=false;
+ recognition.onstart=()=>{
+  state.textContent='LISTENING...';
+  wave.classList.add('active');
+ };
+ recognition.onend=()=>{
+  state.textContent='YOUR ASSISTANT IS READY';
+  wave.classList.remove('active');
+ };
+ recognition.onerror=()=>{
+  state.textContent='VOICE ERROR. PLEASE TRY AGAIN.';
+ };
+ recognition.onresult=e=>{
+  const q=e.results[0][0].transcript;
+  input.value=q;
+  send();
+ };
+ try{recognition.start()}
+ catch(e){state.textContent='PLEASE TRY AGAIN.'}
+}
+function clearChat(){
+ messages.innerHTML='';
+ add('Conversation cleared. JARVIS is ready.','bot');
+}
+const old=localStorage.getItem('jarvisHistory');
+if(old)messages.innerHTML=old;
+</script>
+</body>
+</html>
